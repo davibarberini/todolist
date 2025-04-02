@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<!-- lang attribute will be set dynamically -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Title will be set dynamically -->
+    <title>Multi-List To-Do</title>
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4652945967286879"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      :root {
+        --bg-color: #f4f7f9;
+        --card-bg-color: #ffffff;
+        --list-bg-color: #e9ecef;
+        --primary-color: #007bff;
+        --secondary-color: #6c757d;
+        --text-color: #333;
+        --border-color: #dee2e6;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+        --danger-color: #dc3545;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --completed-color: #6c757d;
+        --active-list-bg: #d1e7ff;
+        --dragging-opacity: 0.5;
+        --drag-over-border: 2px dashed var(--primary-color);
+        --ad-placeholder-bg: #e9ecef;
+        --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+      }
+      /* ... (Keep all other CSS rules from the previous version) ... */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: var(--font-family);
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+      }
+      .container {
+        display: flex;
+        width: 100%;
+        max-width: 850px;
+        background-color: var(--card-bg-color);
+        border-radius: 8px;
+        box-shadow: 0 4px 15px var(--shadow-color);
+        margin-top: 30px;
+        overflow: hidden;
+      }
+      .list-management {
+        width: 220px;
+        flex-shrink: 0;
+        background-color: var(--list-bg-color);
+        padding: 20px 15px;
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+      }
+      .list-management h2 {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+      }
+      #list-container {
+        list-style: none;
+        margin-bottom: 20px;
+        flex-grow: 1;
+        overflow-y: auto;
+        max-height: 350px;
+      }
+      #list-container li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 10px;
+        margin-bottom: 5px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        word-break: break-word;
+        position: relative;
+      }
+      #list-container li:hover {
+        background-color: #d8dde2;
+      }
+      #list-container li.active {
+        background-color: var(--active-list-bg);
+        font-weight: 600;
+        color: #004085;
+      }
+      .list-name {
+        flex-grow: 1;
+        padding-right: 5px;
+        cursor: text;
+      }
+      .list-delete-btn {
+        background: none;
+        border: none;
+        color: var(--danger-color);
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 2px 4px;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+        line-height: 1;
+        margin-left: 5px;
+        flex-shrink: 0;
+      }
+      #list-container li:hover .list-delete-btn {
+        opacity: 1;
+      }
+      .list-delete-btn:hover {
+        color: #a71d2a;
+      }
+      .add-list-area {
+        display: flex;
+        gap: 5px;
+        margin-top: auto;
+        padding-top: 15px;
+        border-top: 1px solid var(--border-color);
+      }
+      #new-list-input {
+        flex-grow: 1;
+        padding: 6px 8px;
+        font-size: 0.9rem;
+        border: 1px solid var(--border-color);
+        border-radius: 3px;
+        min-width: 0;
+      }
+      #add-list-btn {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      #add-list-btn:hover {
+        background-color: #5a6268;
+      }
+      .inline-edit-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: calc(100% - 30px);
+        height: 100%;
+        padding: 8px 10px;
+        margin: 0;
+        font: inherit;
+        color: inherit;
+        border: 1px solid var(--primary-color);
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: white;
+        z-index: 10;
+      }
+      #task-list .inline-edit-input {
+        left: 5px;
+        width: calc(100% - 80px);
+        padding: 10px 5px;
+      }
+      .task-management {
+        flex-grow: 1;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+      }
+      .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .task-management h1 {
+        color: var(--primary-color);
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.5rem;
+      }
+      .adsense-placeholder {
+        width: 100%;
+        max-width: 468px;
+        height: 60px;
+        background-color: var(--ad-placeholder-bg);
+        border: 1px dashed var(--border-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 15px auto 20px;
+        color: var(--secondary-color);
+        font-size: 0.9em;
+        text-align: center;
+      }
+      #reset-tasks-btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        background-color: var(--warning-color);
+        color: #333;
+        border: 1px solid #dda900;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s, border-color 0.2s;
+      }
+      #reset-tasks-btn:hover {
+        background-color: #e9b300;
+        border-color: #c39200;
+      }
+      #reset-tasks-btn:disabled {
+        background-color: #ffca2c;
+        border-color: #ecb300;
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .input-area {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      #task-input {
+        flex-grow: 1;
+        padding: 10px 12px;
+        font-size: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+      }
+      #task-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+      #add-task-btn {
+        padding: 10px 15px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        white-space: nowrap;
+      }
+      #add-task-btn:hover {
+        background-color: #0056b3;
+      }
+      .input-area input:disabled,
+      .input-area button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .input-area button:disabled:hover {
+        background-color: var(--primary-color);
+      }
+      #task-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        flex-grow: 1;
+        overflow-y: auto;
+        max-height: 350px;
+      }
+      #task-list li {
+        display: flex;
+        align-items: center;
+        padding: 12px 5px;
+        position: relative;
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.2s ease;
+        cursor: grab;
+      }
+      #task-list li:last-child {
+        border-bottom: none;
+      }
+      #task-list li.completed .task-text {
+        text-decoration: line-through;
+        color: var(--completed-color);
+        opacity: 0.7;
+      }
+      .task-text {
+        flex-grow: 1;
+        margin-right: 10px;
+        word-break: break-word;
+        cursor: text;
+      }
+      .task-actions {
+        flex-shrink: 0;
+      }
+      .task-actions button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        padding: 5px;
+        margin-left: 8px;
+        transition: color 0.2s ease;
+        vertical-align: middle;
+      }
+      .toggle-btn {
+        color: var(--success-color);
+      }
+      .toggle-btn:hover {
+        color: #1e7e34;
+      }
+      .delete-btn {
+        color: var(--danger-color);
+      }
+      .delete-btn:hover {
+        color: #a71d2a;
+      }
+      .placeholder-message {
+        text-align: center;
+        color: var(--secondary-color);
+        margin-top: 30px;
+        font-style: italic;
+        font-size: 1.1rem;
+      }
+      #task-list li.dragging {
+        opacity: var(--dragging-opacity);
+        background-color: #f0f0f0;
+        cursor: grabbing;
+      }
+      #task-list li.drag-over {
+        border-top: var(--drag-over-border);
+      }
+      @media (max-width: 750px) {
+        .container {
+          flex-direction: column;
+          max-width: 95%;
+        }
+        .list-management {
+          width: 100%;
+          border-right: none;
+          border-bottom: 1px solid var(--border-color);
+          max-height: 250px;
+        }
+        .task-management {
+          padding: 20px 15px;
+        }
+        .task-header {
+          margin-bottom: 15px;
+        }
+        .task-management h1 {
+          font-size: 1.3rem;
+        }
+        #task-list .inline-edit-input {
+          width: calc(100% - 70px);
+        }
+        .adsense-placeholder {
+          max-width: 320px;
+          height: 50px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- List Management Sidebar -->
+      <aside class="list-management">
+        <h2 id="list-sidebar-title">My Lists</h2>
+        <ul id="list-container"></ul>
+        <div class="add-list-area">
+          <input
+            type="text"
+            id="new-list-input"
+            placeholder="New list name..."
+          />
+          <button id="add-list-btn" title="Add new list">+</button>
+        </div>
+      </aside>
+
+      <!-- Task Management Main Area -->
+      <main class="task-management">
+        <div class="task-header">
+          <h1 id="current-list-title">Select a List</h1>
+          <button id="reset-tasks-btn" disabled title="Mark all tasks...">
+            Reset Tasks
+          </button>
+        </div>
+
+        <div class="adsense-placeholder" id="ad-placeholder">
+          <!-- ======================= ADSENSE AD UNIT PLACEHOLDER START ======================= -->
+          <ins
+            class="adsbygoogle"
+            style="display: block"
+            data-ad-client="ca-pub-4652945967286879"
+            data-ad-slot="5150621418"
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+          ></ins>
+          <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </div>
+
+        <div class="input-area">
+          <input
+            type="text"
+            id="task-input"
+            placeholder="Add a new task..."
+            disabled
+          />
+          <button id="add-task-btn" disabled>Add</button>
+        </div>
+        <ul id="task-list">
+          <li class="placeholder-message" id="task-placeholder">
+            Select or create a list...
+          </li>
+        </ul>
+      </main>
+    </div>
+
+    <script>
+      // --- i18n Text Resources ---
+      const uiText = {
+        en: {
+          docTitle: "Multi-List To-Do (Enhanced + Ads)",
+          listSidebarTitle: "My Lists",
+          currentListTitleDefault: "Select a List",
+          resetTasksBtn: "Reset Tasks",
+          resetTasksTooltip: "Mark all tasks in this list as incomplete",
+          addTaskBtn: "Add",
+          taskInputPlaceholderDefault: "Select a list first...",
+          taskInputPlaceholderActive: 'Add task to "{listName}"...',
+          taskPlaceholderDefault: "Select or create a list to see tasks.",
+          taskPlaceholderEmptyList: 'No tasks in "{listName}" yet!',
+          addListBtnTooltip: "Add new list",
+          newListInputPlaceholder: "New list name...",
+          listPlaceholderDefault: "Create a list below",
+          deleteListBtnTooltip: 'Delete list "{listName}"',
+          deleteListAriaLabel: "Delete list {listName}",
+          deleteTaskBtnTooltip: "Delete task",
+          deleteTaskAriaLabel: "Delete task",
+          toggleTaskCompleteAriaLabel: "Mark as complete",
+          toggleTaskIncompleteAriaLabel: "Mark as incomplete",
+          alertEnterListName: "Please enter a name for the new list.",
+          alertDuplicateListName: 'A list named "{listName}" already exists.',
+          alertEnterTask: "Please enter a task!",
+          alertSelectList: "Please select a list first!",
+          alertEmptyName: "Name cannot be empty.",
+          confirmDeleteList:
+            'Are you sure you want to delete the list "{listName}" and all its tasks?',
+          confirmResetTasks: 'Mark all tasks in "{listName}" as incomplete?',
+        },
+        pt: {
+          // Brazilian Portuguese
+          docTitle: "Lista de Tarefas Múltipla (Avançada + Ads)",
+          listSidebarTitle: "Minhas Listas",
+          currentListTitleDefault: "Selecione uma Lista",
+          resetTasksBtn: "Resetar Tarefas",
+          resetTasksTooltip:
+            "Marcar todas as tarefas nesta lista como incompletas",
+          adPlaceholder: "Espaço para Anúncio",
+          addTaskBtn: "Adicionar",
+          taskInputPlaceholderDefault: "Selecione uma lista primeiro...",
+          taskInputPlaceholderActive: 'Adicionar tarefa para "{listName}"...',
+          taskPlaceholderDefault:
+            "Selecione ou crie uma lista para ver as tarefas.",
+          taskPlaceholderEmptyList: 'Nenhuma tarefa em "{listName}" ainda!',
+          addListBtnTooltip: "Adicionar nova lista",
+          newListInputPlaceholder: "Nome da nova lista...",
+          listPlaceholderDefault: "Crie uma lista abaixo",
+          deleteListBtnTooltip: 'Excluir lista "{listName}"',
+          deleteListAriaLabel: "Excluir lista {listName}",
+          deleteTaskBtnTooltip: "Excluir tarefa",
+          deleteTaskAriaLabel: "Excluir tarefa",
+          toggleTaskCompleteAriaLabel: "Marcar como completa",
+          toggleTaskIncompleteAriaLabel: "Marcar como incompleta",
+          alertEnterListName: "Por favor, digite um nome para a nova lista.",
+          alertDuplicateListName: 'Uma lista chamada "{listName}" já existe.',
+          alertEnterTask: "Por favor, digite uma tarefa!",
+          alertSelectList: "Por favor, selecione uma lista primeiro!",
+          alertEmptyName: "O nome não pode estar vazio.",
+          confirmDeleteList:
+            'Tem certeza que deseja excluir a lista "{listName}" e todas as suas tarefas?',
+          confirmResetTasks:
+            'Marcar todas as tarefas em "{listName}" como incompletas?',
+        },
+      };
+      let currentLang = "en"; // Default language
+
+      // Helper to get translated text, handling potential variables
+      function getText(key, variables = {}) {
+        let text = uiText[currentLang]?.[key] || uiText.en[key] || `[${key}]`; // Fallback chain
+        for (const [variable, value] of Object.entries(variables)) {
+          text = text.replace(`{${variable}}`, value);
+        }
+        return text;
+      }
+
+      // --- DOM Elements --- (Keep all from previous version)
+      const listContainer = document.getElementById("list-container");
+      const newListInput = document.getElementById("new-list-input");
+      const addListBtn = document.getElementById("add-list-btn");
+      const currentListTitle = document.getElementById("current-list-title");
+      const resetTasksBtn = document.getElementById("reset-tasks-btn");
+      const taskInput = document.getElementById("task-input");
+      const addTaskBtn = document.getElementById("add-task-btn");
+      const taskList = document.getElementById("task-list");
+      const taskPlaceholder = document.getElementById("task-placeholder");
+      // Titles and static elements to translate
+      const docTitleElement = document.querySelector("title");
+      const listSidebarTitleElement =
+        document.getElementById("list-sidebar-title");
+      const adPlaceholderElement = document.getElementById("ad-placeholder");
+
+      // --- Constants & State --- (Keep all from previous version)
+      const LIST_STORAGE_KEY = "multiTodoListListsEnhancedAdsI18n"; // Updated key
+      let lists = {};
+      let currentListId = null;
+      let draggedTaskId = null;
+
+      // --- Language Detection and Setting ---
+      function setLanguage() {
+        const browserLang = navigator.language || navigator.userLanguage;
+        if (browserLang && browserLang.toLowerCase().startsWith("pt")) {
+          currentLang = "pt";
+        } else {
+          currentLang = "en";
+        }
+        document.documentElement.lang = currentLang === "pt" ? "pt-BR" : "en";
+
+        // Update static text elements
+        docTitleElement.textContent = getText("docTitle");
+        listSidebarTitleElement.textContent = getText("listSidebarTitle");
+        resetTasksBtn.textContent = getText("resetTasksBtn");
+        resetTasksBtn.title = getText("resetTasksTooltip");
+        addTaskBtn.textContent = getText("addTaskBtn");
+        addListBtn.title = getText("addListBtnTooltip");
+        newListInput.placeholder = getText("newListInputPlaceholder");
+
+        // Re-render dynamic elements that depend on language
+        renderLists(); // Will use getText for placeholders
+        renderTasks(); // Will use getText for placeholders
+        updateUIForListSelection(); // Will use getText for titles/placeholders
+      }
+
+      // --- List Functions --- (Update alerts, confirms, tooltips, placeholders)
+      function saveLists() {
+        localStorage.setItem(LIST_STORAGE_KEY, JSON.stringify(lists));
+      }
+      function loadLists() {
+        /* ... (same logic) ... */
+        const storedLists = localStorage.getItem(LIST_STORAGE_KEY);
+        lists = storedLists ? JSON.parse(storedLists) : {};
+        if (currentListId === null && Object.keys(lists).length > 0) {
+          currentListId = Object.keys(lists)[0];
+        } else if (currentListId !== null && !lists[currentListId]) {
+          currentListId =
+            Object.keys(lists).length > 0 ? Object.keys(lists)[0] : null;
+        }
+      }
+
+      function renderLists() {
+        listContainer.innerHTML = "";
+        const listIds = Object.keys(lists);
+        if (listIds.length === 0) {
+          listContainer.innerHTML = `<li class="placeholder-message">${getText(
+            "listPlaceholderDefault"
+          )}</li>`; // Use getText
+          return;
+        }
+
+        listIds.forEach((listId) => {
+          const list = lists[listId];
+          const listItem = document.createElement("li");
+          listItem.setAttribute("data-list-id", list.id);
+          if (list.id === currentListId) {
+            listItem.classList.add("active");
+          }
+
+          const nameSpan = document.createElement("span");
+          nameSpan.classList.add("list-name");
+          nameSpan.textContent = list.name;
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.classList.add("list-delete-btn");
+          deleteBtn.innerHTML = "×";
+          // Use getText for dynamic tooltips/aria-labels
+          deleteBtn.title = getText("deleteListBtnTooltip", {
+            listName: list.name,
+          });
+          deleteBtn.setAttribute(
+            "aria-label",
+            getText("deleteListAriaLabel", { listName: list.name })
+          );
+
+          listItem.appendChild(nameSpan);
+          listItem.appendChild(deleteBtn);
+          listContainer.appendChild(listItem);
+        });
+      }
+
+      function addList() {
+        const listName = newListInput.value.trim();
+        if (listName === "") {
+          alert(getText("alertEnterListName")); // Use getText
+          return;
+        }
+        if (Object.values(lists).some((list) => list.name === listName)) {
+          alert(getText("alertDuplicateListName", { listName: listName })); // Use getText
+          return;
+        }
+        const newListId = `list-${Date.now()}`;
+        lists[newListId] = { id: newListId, name: listName, tasks: [] };
+        newListInput.value = "";
+        currentListId = newListId;
+        saveLists();
+        renderLists();
+        renderTasks();
+        updateUIForListSelection();
+        newListInput.focus();
+      }
+      function deleteList(listIdToDelete) {
+        const listName = lists[listIdToDelete]?.name || "this list"; // Keep fallback for confirm msg
+        // Use getText for confirm message
+        if (!confirm(getText("confirmDeleteList", { listName: listName })))
+          return;
+
+        delete lists[listIdToDelete];
+        if (currentListId === listIdToDelete) {
+          const remainingListIds = Object.keys(lists);
+          currentListId =
+            remainingListIds.length > 0 ? remainingListIds[0] : null;
+        }
+        saveLists();
+        renderLists();
+        renderTasks();
+        updateUIForListSelection();
+      }
+      function selectList(listIdToSelect) {
+        if (listIdToSelect !== currentListId) {
+          currentListId = listIdToSelect;
+          renderLists();
+          renderTasks();
+          updateUIForListSelection();
+        }
+      }
+      function updateUIForListSelection() {
+        if (currentListId && lists[currentListId]) {
+          const listName = lists[currentListId].name;
+          currentListTitle.textContent = listName; // Use actual list name
+          taskInput.disabled = false;
+          addTaskBtn.disabled = false;
+          resetTasksBtn.disabled = lists[currentListId].tasks.length === 0;
+          // Use getText for dynamic placeholder
+          taskInput.placeholder = getText("taskInputPlaceholderActive", {
+            listName: listName,
+          });
+        } else {
+          // Use getText for default texts
+          currentListTitle.textContent = getText("currentListTitleDefault");
+          taskInput.disabled = true;
+          addTaskBtn.disabled = true;
+          resetTasksBtn.disabled = true;
+          taskInput.placeholder = getText("taskInputPlaceholderDefault");
+        }
+      }
+
+      // --- Inline Editing Function --- (Update alerts)
+      function makeEditable(element, id, type) {
+        const currentText = element.textContent;
+        if (element.parentNode.querySelector(".inline-edit-input")) {
+          return;
+        }
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = currentText;
+        input.classList.add("inline-edit-input");
+        element.style.display = "none";
+        element.parentNode.insertBefore(input, element);
+        input.focus();
+        input.select();
+
+        const removeInput = () => {
+          element.style.display = "";
+          if (input.parentNode) {
+            input.parentNode.removeChild(input);
+          }
+        };
+
+        const saveEdit = () => {
+          const newText = input.value.trim();
+          removeInput();
+          if (newText && newText !== currentText) {
+            if (type === "list") {
+              if (
+                Object.values(lists).some(
+                  (list) => list.name === newText && list.id !== id
+                )
+              ) {
+                alert(getText("alertDuplicateListName", { listName: newText })); // Use getText
+                element.textContent = currentText;
+                return;
+              }
+              lists[id].name = newText;
+              saveLists();
+              renderLists();
+              if (id === currentListId) {
+                updateUIForListSelection();
+              }
+            } else if (
+              type === "task" &&
+              currentListId &&
+              lists[currentListId]
+            ) {
+              const taskIndex = lists[currentListId].tasks.findIndex(
+                (t) => t.id === id
+              );
+              if (taskIndex > -1) {
+                lists[currentListId].tasks[taskIndex].text = newText;
+                saveLists();
+                renderTasks();
+              }
+            }
+          } else if (!newText) {
+            alert(getText("alertEmptyName")); // Use getText
+            element.textContent = currentText;
+          } else {
+            element.textContent = currentText;
+          }
+        };
+        input.addEventListener("blur", saveEdit, { once: true });
+        input.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            input.blur();
+          } else if (e.key === "Escape") {
+            removeInput();
+            element.textContent = currentText;
+          }
+        });
+      }
+
+      // --- Task Functions --- (Update alerts, placeholders, tooltips, aria-labels)
+      function renderTasks() {
+        taskList.innerHTML = "";
+        if (currentListId === null || !lists[currentListId]) {
+          taskPlaceholder.style.display = "list-item";
+          taskPlaceholder.textContent = getText("taskPlaceholderDefault"); // Use getText
+          resetTasksBtn.disabled = true;
+          return;
+        }
+
+        const currentList = lists[currentListId];
+        const currentTasks = currentList.tasks;
+        resetTasksBtn.disabled = currentTasks.length === 0;
+
+        if (currentTasks.length === 0) {
+          taskPlaceholder.style.display = "list-item";
+          // Use getText for dynamic placeholder
+          taskPlaceholder.textContent = getText("taskPlaceholderEmptyList", {
+            listName: currentList.name,
+          });
+        } else {
+          taskPlaceholder.style.display = "none";
+          currentTasks.forEach((task) => {
+            const listItem = document.createElement("li");
+            listItem.setAttribute("data-id", task.id);
+            listItem.setAttribute("draggable", true);
+            if (task.completed) {
+              listItem.classList.add("completed");
+            }
+
+            const textSpan = document.createElement("span");
+            textSpan.classList.add("task-text");
+            textSpan.textContent = task.text;
+
+            const actionsDiv = document.createElement("div");
+            actionsDiv.classList.add("task-actions");
+            const toggleBtn = document.createElement("button");
+            toggleBtn.classList.add("toggle-btn");
+            toggleBtn.innerHTML = task.completed ? "↺" : "✔";
+            // Use getText for tooltips/aria-labels based on state
+            const toggleTooltipKey = task.completed
+              ? "toggleTaskIncompleteAriaLabel"
+              : "toggleTaskCompleteAriaLabel";
+            toggleBtn.setAttribute("aria-label", getText(toggleTooltipKey));
+            toggleBtn.title = getText(toggleTooltipKey);
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.classList.add("delete-btn");
+            deleteBtn.innerHTML = "×";
+            // Use getText for static tooltips/aria-labels
+            deleteBtn.setAttribute(
+              "aria-label",
+              getText("deleteTaskAriaLabel")
+            );
+            deleteBtn.title = getText("deleteTaskBtnTooltip");
+
+            actionsDiv.appendChild(toggleBtn);
+            actionsDiv.appendChild(deleteBtn);
+            listItem.appendChild(textSpan);
+            listItem.appendChild(actionsDiv);
+            taskList.appendChild(listItem);
+          });
+        }
+      }
+      function addTask() {
+        if (currentListId === null || !lists[currentListId]) {
+          alert(getText("alertSelectList")); // Use getText
+          return;
+        }
+        const taskText = taskInput.value.trim();
+        if (taskText === "") {
+          alert(getText("alertEnterTask")); // Use getText
+          return;
+        }
+        const newTask = { id: Date.now(), text: taskText, completed: false };
+        lists[currentListId].tasks.push(newTask);
+        taskInput.value = "";
+        saveLists();
+        renderTasks();
+        updateUIForListSelection();
+        taskInput.focus();
+      }
+      function toggleTaskComplete(taskId) {
+        /* ... (logic same, rendering handles text) ... */
+        if (!currentListId || !lists[currentListId]) return;
+        lists[currentListId].tasks = lists[currentListId].tasks.map((task) => {
+          if (task.id === taskId) {
+            return { ...task, completed: !task.completed };
+          }
+          return task;
+        });
+        saveLists();
+        renderTasks();
+      }
+      function deleteTask(taskId) {
+        /* ... (logic same) ... */
+        if (!currentListId || !lists[currentListId]) return;
+        lists[currentListId].tasks = lists[currentListId].tasks.filter(
+          (task) => task.id !== taskId
+        );
+        saveLists();
+        renderTasks();
+        updateUIForListSelection();
+      }
+      function resetAllTasks() {
+        if (
+          !currentListId ||
+          !lists[currentListId] ||
+          lists[currentListId].tasks.length === 0
+        )
+          return;
+        const listName = lists[currentListId].name;
+        // Use getText for confirm message
+        if (!confirm(getText("confirmResetTasks", { listName: listName })))
+          return;
+        lists[currentListId].tasks = lists[currentListId].tasks.map((task) => ({
+          ...task,
+          completed: false,
+        }));
+        saveLists();
+        renderTasks();
+      }
+
+      // --- Drag and Drop Functions --- (Logic remains the same)
+      function handleDragStart(e) {
+        if (
+          e.target.tagName === "INPUT" ||
+          e.target.tagName === "BUTTON" ||
+          e.target.closest(".task-actions")
+        ) {
+          e.preventDefault();
+          return;
+        }
+        if (!e.target.matches('li[draggable="true"]')) {
+          e.preventDefault();
+          return;
+        }
+        draggedTaskId = Number(e.target.getAttribute("data-id"));
+        setTimeout(() => e.target.classList.add("dragging"), 0);
+        e.dataTransfer.effectAllowed = "move";
+      }
+      function handleDragEnd(e) {
+        try {
+          e.target.classList.remove("dragging");
+        } catch (err) {}
+        clearDragOverStyles();
+        draggedTaskId = null;
+      }
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        const targetLi = e.target.closest('li[draggable="true"]');
+        if (
+          targetLi &&
+          draggedTaskId !== null &&
+          Number(targetLi.getAttribute("data-id")) !== draggedTaskId
+        ) {
+          clearDragOverStyles();
+          targetLi.classList.add("drag-over");
+        }
+      }
+      function handleDragLeave(e) {
+        const targetLi = e.target.closest('li[draggable="true"]');
+        if (targetLi) {
+          if (!e.relatedTarget || !targetLi.contains(e.relatedTarget)) {
+            targetLi.classList.remove("drag-over");
+          }
+        }
+      }
+      function clearDragOverStyles() {
+        taskList
+          .querySelectorAll("li.drag-over")
+          .forEach((li) => li.classList.remove("drag-over"));
+      }
+      function handleDrop(e) {
+        e.preventDefault();
+        clearDragOverStyles();
+        const targetLi = e.target.closest('li[draggable="true"]');
+        if (
+          !targetLi ||
+          !draggedTaskId ||
+          !currentListId ||
+          !lists[currentListId]
+        ) {
+          draggedTaskId = null;
+          return;
+        }
+        const targetId = Number(targetLi.getAttribute("data-id"));
+        if (targetId === draggedTaskId) {
+          draggedTaskId = null;
+          return;
+        }
+        const tasksArray = lists[currentListId].tasks;
+        const draggedIndex = tasksArray.findIndex(
+          (task) => task.id === draggedTaskId
+        );
+        let targetIndex = tasksArray.findIndex((task) => task.id === targetId);
+        if (draggedIndex === -1 || targetIndex === -1) {
+          console.error("Error: Dragged or target task not found.");
+          draggedTaskId = null;
+          return;
+        }
+        const [draggedItem] = tasksArray.splice(draggedIndex, 1);
+        targetIndex = tasksArray.findIndex((task) => task.id === targetId);
+        if (targetIndex === -1) {
+          tasksArray.push(draggedItem);
+        } else {
+          tasksArray.splice(targetIndex, 0, draggedItem);
+        }
+        saveLists();
+        renderTasks();
+        draggedTaskId = null;
+      }
+
+      // --- Event Listeners --- (Logic remains the same, text handled by render/update functions)
+      addListBtn.addEventListener("click", addList);
+      newListInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addList();
+        }
+      });
+      listContainer.addEventListener("click", (e) => {
+        const target = e.target;
+        const listItem = target.closest("li");
+        if (
+          !listItem ||
+          listItem.classList.contains("placeholder-message") ||
+          listItem.querySelector(".inline-edit-input")
+        )
+          return;
+        const listId = listItem.getAttribute("data-list-id");
+        if (target.classList.contains("list-delete-btn")) {
+          deleteList(listId);
+        } else {
+          selectList(listId);
+        }
+      });
+      listContainer.addEventListener("dblclick", (e) => {
+        const nameSpan = e.target.closest(".list-name");
+        if (
+          nameSpan &&
+          !nameSpan.parentNode.querySelector(".inline-edit-input")
+        ) {
+          const listItem = nameSpan.closest("li");
+          const listId = listItem.getAttribute("data-list-id");
+          makeEditable(nameSpan, listId, "list");
+        }
+      });
+      resetTasksBtn.addEventListener("click", resetAllTasks);
+      addTaskBtn.addEventListener("click", addTask);
+      taskInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          if (!addTaskBtn.disabled) {
+            addTask();
+          }
+        }
+      });
+      taskList.addEventListener("click", (e) => {
+        const targetElement = e.target;
+        const listItem = targetElement.closest("li");
+        if (
+          !listItem ||
+          !currentListId ||
+          listItem.querySelector(".inline-edit-input")
+        )
+          return;
+        const taskId = Number(listItem.getAttribute("data-id"));
+        if (targetElement.classList.contains("toggle-btn")) {
+          toggleTaskComplete(taskId);
+        } else if (targetElement.classList.contains("delete-btn")) {
+          deleteTask(taskId);
+        }
+      });
+      taskList.addEventListener("dblclick", (e) => {
+        const textSpan = e.target.closest(".task-text");
+        if (
+          textSpan &&
+          !textSpan.parentNode.querySelector(".inline-edit-input")
+        ) {
+          const listItem = textSpan.closest("li");
+          const taskId = Number(listItem.getAttribute("data-id"));
+          makeEditable(textSpan, taskId, "task");
+        }
+      });
+      taskList.addEventListener("dragstart", handleDragStart);
+      taskList.addEventListener("dragend", handleDragEnd);
+      taskList.addEventListener("dragover", handleDragOver);
+      taskList.addEventListener("dragleave", handleDragLeave);
+      taskList.addEventListener("drop", handleDrop);
+
+      // --- Initial Load ---
+      document.addEventListener("DOMContentLoaded", () => {
+        setLanguage(); // Detect language and set initial text FIRST
+        loadLists(); // Load data from localStorage
+        // Rendering happens within setLanguage now, or needs to be called again if loadLists modifies currentListId significantly
+        renderLists();
+        renderTasks();
+        updateUIForListSelection(); // Ensure UI state matches loaded data and language
+      });
+    </script>
+  </body>
+</html>
