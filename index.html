@@ -155,6 +155,99 @@
       #add-list-btn:hover {
         background-color: #5a6268;
       }
+      .data-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .data-action-btn {
+        padding: 7px 8px;
+        font-size: 0.82rem;
+        background-color: #fff;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+      }
+      .data-action-btn:hover:not(:disabled) {
+        background-color: var(--primary-color);
+        color: #fff;
+      }
+      .data-action-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+      }
+      #import-list-input,
+      #import-all-input {
+        display: none;
+      }
+      .modal-backdrop {
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.35);
+        display: none;
+        inset: 0;
+        justify-content: center;
+        padding: 20px;
+        position: fixed;
+        z-index: 1000;
+      }
+      .modal-backdrop.open {
+        display: flex;
+      }
+      .modal {
+        background-color: #fff;
+        border-radius: 6px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        max-width: 420px;
+        padding: 18px;
+        width: 100%;
+      }
+      .modal h2 {
+        color: var(--primary-color);
+        font-size: 1.15rem;
+        margin-bottom: 12px;
+      }
+      .modal-list-options {
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        max-height: 260px;
+        overflow-y: auto;
+      }
+      .modal-list-options label {
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        gap: 8px;
+        padding: 9px 10px;
+      }
+      .modal-list-options label:last-child {
+        border-bottom: none;
+      }
+      .modal-list-options input {
+        flex-shrink: 0;
+      }
+      .modal-list-options span {
+        word-break: break-word;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 14px;
+      }
+      .modal-actions button {
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        cursor: pointer;
+        padding: 7px 12px;
+      }
+      .modal-primary-btn {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color) !important;
+        color: #fff;
+      }
       .inline-edit-input {
         position: absolute;
         left: 0;
@@ -384,6 +477,40 @@
           />
           <button id="add-list-btn" title="Add new list">+</button>
         </div>
+        <div class="data-actions">
+          <button
+            type="button"
+            id="export-list-btn"
+            class="data-action-btn"
+            disabled
+          >
+            Export
+          </button>
+          <button
+            type="button"
+            id="export-all-btn"
+            class="data-action-btn"
+            disabled
+          >
+            Export All
+          </button>
+          <button type="button" id="import-list-btn" class="data-action-btn">
+            Import
+          </button>
+          <button type="button" id="import-all-btn" class="data-action-btn">
+            Import All
+          </button>
+          <input
+            type="file"
+            id="import-list-input"
+            accept="application/json,.json"
+          />
+          <input
+            type="file"
+            id="import-all-input"
+            accept="application/json,.json"
+          />
+        </div>
       </aside>
 
       <!-- Task Management Main Area -->
@@ -426,6 +553,32 @@
         </ul>
       </main>
     </div>
+    <div
+      id="export-modal-backdrop"
+      class="modal-backdrop"
+      role="presentation"
+      aria-hidden="true"
+    >
+      <section
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="export-modal-title"
+      >
+        <h2 id="export-modal-title">Export lists</h2>
+        <div id="export-list-options" class="modal-list-options"></div>
+        <div class="modal-actions">
+          <button type="button" id="cancel-export-btn">Cancel</button>
+          <button
+            type="button"
+            id="confirm-export-btn"
+            class="modal-primary-btn"
+          >
+            Export
+          </button>
+        </div>
+      </section>
+    </div>
 
     <script>
       // --- i18n Text Resources ---
@@ -458,6 +611,27 @@
           confirmDeleteList:
             'Are you sure you want to delete the list "{listName}" and all its tasks?',
           confirmResetTasks: 'Mark all tasks in "{listName}" as incomplete?',
+          exportListBtn: "Export",
+          exportAllBtn: "Export All",
+          importListBtn: "Import",
+          importAllBtn: "Import All",
+          exportListTooltip: "Choose lists to export as JSON",
+          exportListTooltipDisabled: "Create a list to export",
+          exportAllTooltip: "Export all lists as JSON",
+          importListTooltip: "Import one or more lists from JSON",
+          importAllTooltip: "Replace all lists with a JSON backup",
+          exportModalTitle: "Export lists",
+          exportModalCancelBtn: "Cancel",
+          exportModalConfirmBtn: "Export",
+          alertExportNoLists: "Please create a list before exporting.",
+          alertExportSelectList: "Please select at least one list to export.",
+          alertImportInvalidFile:
+            "This JSON file does not contain valid lists.",
+          alertImportReadError: "Could not read this JSON file.",
+          alertImportSuccess: 'Imported {count} list(s).',
+          confirmImportAll:
+            "Import all will replace every current list. Continue?",
+          alertImportAllSuccess: 'Imported all lists from "{fileName}".',
         },
         pt: {
           // Brazilian Portuguese
@@ -492,6 +666,29 @@
             'Tem certeza que deseja excluir a lista "{listName}" e todas as suas tarefas?',
           confirmResetTasks:
             'Marcar todas as tarefas em "{listName}" como incompletas?',
+          exportListBtn: "Exportar",
+          exportAllBtn: "Exportar tudo",
+          importListBtn: "Importar",
+          importAllBtn: "Importar tudo",
+          exportListTooltip: "Escolher listas para exportar como JSON",
+          exportListTooltipDisabled: "Crie uma lista para exportar",
+          exportAllTooltip: "Exportar todas as listas como JSON",
+          importListTooltip: "Importar uma ou mais listas de um JSON",
+          importAllTooltip: "Substituir todas as listas por um backup JSON",
+          exportModalTitle: "Exportar listas",
+          exportModalCancelBtn: "Cancelar",
+          exportModalConfirmBtn: "Exportar",
+          alertExportNoLists: "Por favor, crie uma lista antes de exportar.",
+          alertExportSelectList:
+            "Por favor, selecione pelo menos uma lista para exportar.",
+          alertImportInvalidFile:
+            "Este arquivo JSON nao contem listas validas.",
+          alertImportReadError: "Nao foi possivel ler este arquivo JSON.",
+          alertImportSuccess: "{count} lista(s) importada(s).",
+          confirmImportAll:
+            "Importar tudo vai substituir todas as listas atuais. Continuar?",
+          alertImportAllSuccess:
+            'Todas as listas de "{fileName}" foram importadas.',
         },
       };
       let currentLang = "en"; // Default language
@@ -509,12 +706,25 @@
       const listContainer = document.getElementById("list-container");
       const newListInput = document.getElementById("new-list-input");
       const addListBtn = document.getElementById("add-list-btn");
+      const exportListBtn = document.getElementById("export-list-btn");
+      const exportAllBtn = document.getElementById("export-all-btn");
+      const importListBtn = document.getElementById("import-list-btn");
+      const importAllBtn = document.getElementById("import-all-btn");
+      const importListInput = document.getElementById("import-list-input");
+      const importAllInput = document.getElementById("import-all-input");
       const currentListTitle = document.getElementById("current-list-title");
       const resetTasksBtn = document.getElementById("reset-tasks-btn");
       const taskInput = document.getElementById("task-input");
       const addTaskBtn = document.getElementById("add-task-btn");
       const taskList = document.getElementById("task-list");
       const taskPlaceholder = document.getElementById("task-placeholder");
+      const exportModalBackdrop = document.getElementById(
+        "export-modal-backdrop"
+      );
+      const exportModalTitle = document.getElementById("export-modal-title");
+      const exportListOptions = document.getElementById("export-list-options");
+      const cancelExportBtn = document.getElementById("cancel-export-btn");
+      const confirmExportBtn = document.getElementById("confirm-export-btn");
       // Titles and static elements to translate
       const docTitleElement = document.querySelector("title");
       const listSidebarTitleElement =
@@ -543,6 +753,15 @@
         resetTasksBtn.textContent = getText("resetTasksBtn");
         resetTasksBtn.title = getText("resetTasksTooltip");
         addTaskBtn.textContent = getText("addTaskBtn");
+        exportListBtn.textContent = getText("exportListBtn");
+        exportAllBtn.textContent = getText("exportAllBtn");
+        importListBtn.textContent = getText("importListBtn");
+        importAllBtn.textContent = getText("importAllBtn");
+        importListBtn.title = getText("importListTooltip");
+        importAllBtn.title = getText("importAllTooltip");
+        exportModalTitle.textContent = getText("exportModalTitle");
+        cancelExportBtn.textContent = getText("exportModalCancelBtn");
+        confirmExportBtn.textContent = getText("exportModalConfirmBtn");
         addListBtn.title = getText("addListBtnTooltip");
         newListInput.placeholder = getText("newListInputPlaceholder");
 
@@ -618,7 +837,7 @@
           alert(getText("alertDuplicateListName", { listName: listName })); // Use getText
           return;
         }
-        const newListId = `list-${Date.now()}`;
+        const newListId = generateListId();
         lists[newListId] = { id: newListId, name: listName, tasks: [] };
         newListInput.value = "";
         currentListId = newListId;
@@ -654,6 +873,15 @@
         }
       }
       function updateUIForListSelection() {
+        const hasLists = Object.keys(lists).length > 0;
+        exportListBtn.disabled = !hasLists;
+        exportAllBtn.disabled = !hasLists;
+        exportListBtn.title = hasLists
+          ? getText("exportListTooltip")
+          : getText("exportListTooltipDisabled");
+        exportAllBtn.title = hasLists
+          ? getText("exportAllTooltip")
+          : getText("exportListTooltipDisabled");
         if (currentListId && lists[currentListId]) {
           const listName = lists[currentListId].name;
           currentListTitle.textContent = listName; // Use actual list name
@@ -672,6 +900,272 @@
           resetTasksBtn.disabled = true;
           taskInput.placeholder = getText("taskInputPlaceholderDefault");
         }
+      }
+
+      function createDownloadFileName(listName) {
+        const safeName = listName
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+          .slice(0, 60);
+        return `${safeName || "todo-list"}.json`;
+      }
+
+      function generateListId() {
+        return generateListIdForSource(lists);
+      }
+
+      function generateListIdForSource(listSource) {
+        let listId = `list-${Date.now()}-${Math.floor(
+          Math.random() * 1000000
+        )}`;
+        while (listSource[listId]) {
+          listId = `list-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+        }
+        return listId;
+      }
+
+      function generateTaskId() {
+        return Date.now() + Math.floor(Math.random() * 1000000);
+      }
+
+      function serializeList(list) {
+        return {
+          name: list.name,
+          tasks: list.tasks.map((task) => ({
+            text: task.text,
+            completed: Boolean(task.completed),
+          })),
+        };
+      }
+
+      function downloadJson(data, fileName) {
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+          type: "application/json",
+        });
+        const downloadUrl = URL.createObjectURL(blob);
+        const downloadLink = document.createElement("a");
+        downloadLink.href = downloadUrl;
+        downloadLink.download = fileName;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
+        URL.revokeObjectURL(downloadUrl);
+      }
+
+      function createExportData(listsToExport, scope) {
+        return {
+          type: "multi-todo-lists",
+          version: 2,
+          scope: scope,
+          exportedAt: new Date().toISOString(),
+          lists: listsToExport.map(serializeList),
+        };
+      }
+
+      function openExportModal() {
+        const listIds = Object.keys(lists);
+        if (listIds.length === 0) {
+          alert(getText("alertExportNoLists"));
+          return;
+        }
+        exportListOptions.innerHTML = "";
+        listIds.forEach((listId) => {
+          const label = document.createElement("label");
+          const checkbox = document.createElement("input");
+          const name = document.createElement("span");
+          checkbox.type = "checkbox";
+          checkbox.value = listId;
+          checkbox.checked =
+            listId === currentListId ||
+            (!currentListId && listIds.length === 1);
+          name.textContent = lists[listId].name;
+          label.appendChild(checkbox);
+          label.appendChild(name);
+          exportListOptions.appendChild(label);
+        });
+        exportModalBackdrop.classList.add("open");
+        exportModalBackdrop.setAttribute("aria-hidden", "false");
+      }
+
+      function closeExportModal() {
+        exportModalBackdrop.classList.remove("open");
+        exportModalBackdrop.setAttribute("aria-hidden", "true");
+      }
+
+      function exportSelectedLists() {
+        const selectedListIds = [
+          ...exportListOptions.querySelectorAll("input:checked"),
+        ].map((input) => input.value);
+        if (selectedListIds.length === 0) {
+          alert(getText("alertExportSelectList"));
+          return;
+        }
+        const selectedLists = selectedListIds
+          .map((listId) => lists[listId])
+          .filter(Boolean);
+        const fileName =
+          selectedLists.length === 1
+            ? createDownloadFileName(selectedLists[0].name)
+            : createDownloadFileName("selected-todo-lists");
+        downloadJson(createExportData(selectedLists, "selected"), fileName);
+        closeExportModal();
+      }
+
+      function exportAllLists() {
+        const allLists = Object.values(lists);
+        if (allLists.length === 0) {
+          alert(getText("alertExportNoLists"));
+          return;
+        }
+        downloadJson(
+          createExportData(allLists, "all"),
+          createDownloadFileName("all-todo-lists")
+        );
+      }
+
+      function getUniqueListName(baseName, listSource = lists) {
+        let listName = baseName.trim() || "Imported List";
+        const existingNames = new Set(
+          Object.values(listSource).map((list) => list.name)
+        );
+        if (!existingNames.has(listName)) {
+          return listName;
+        }
+        let suffix = 2;
+        while (existingNames.has(`${listName} (${suffix})`)) {
+          suffix += 1;
+        }
+        return `${listName} (${suffix})`;
+      }
+
+      function getImportedListCandidates(data) {
+        if (Array.isArray(data)) {
+          return data;
+        }
+        if (Array.isArray(data?.lists)) {
+          return data.lists;
+        }
+        if (data?.list) {
+          return [data.list];
+        }
+        if (typeof data?.name === "string" && Array.isArray(data?.tasks)) {
+          return [data];
+        }
+        if (data && typeof data === "object") {
+          const values = Object.values(data);
+          if (
+            values.length > 0 &&
+            values.every(
+              (value) =>
+                value &&
+                typeof value.name === "string" &&
+                Array.isArray(value.tasks)
+            )
+          ) {
+            return values;
+          }
+        }
+        return [];
+      }
+
+      function normalizeImportedList(importedList, listSource = lists) {
+        if (
+          !importedList ||
+          typeof importedList.name !== "string" ||
+          !Array.isArray(importedList.tasks)
+        ) {
+          return null;
+        }
+        const normalizedTasks = importedList.tasks
+          .filter((task) => task && typeof task.text === "string")
+          .map((task) => ({
+            id: generateTaskId(),
+            text: task.text.trim(),
+            completed: Boolean(task.completed),
+          }))
+          .filter((task) => task.text !== "");
+        return {
+          name: getUniqueListName(importedList.name, listSource),
+          tasks: normalizedTasks,
+        };
+      }
+
+      function importListsFromData(data, replaceExisting) {
+        const importedCandidates = getImportedListCandidates(data);
+        const targetLists = replaceExisting ? {} : lists;
+        const normalizedLists = [];
+        importedCandidates.forEach((candidate) => {
+          const importedList = normalizeImportedList(candidate, targetLists);
+          if (!importedList) {
+            return;
+          }
+          const listId = generateListIdForSource(targetLists);
+          targetLists[listId] = {
+            id: listId,
+            name: importedList.name,
+            tasks: importedList.tasks,
+          };
+          normalizedLists.push(targetLists[listId]);
+        });
+        if (normalizedLists.length === 0) {
+          return null;
+        }
+        return { importedLists: normalizedLists, targetLists };
+      }
+
+      function applyImportedLists(importResult, replaceExisting) {
+        if (replaceExisting) {
+          lists = importResult.targetLists;
+        }
+        currentListId = importResult.importedLists[0].id;
+        saveLists();
+        renderLists();
+        renderTasks();
+        updateUIForListSelection();
+      }
+
+      function importListsFromFile(file, replaceExisting) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsedData = JSON.parse(reader.result);
+            const importResult = importListsFromData(
+              parsedData,
+              replaceExisting
+            );
+            if (!importResult) {
+              alert(getText("alertImportInvalidFile"));
+              return;
+            }
+            if (replaceExisting && !confirm(getText("confirmImportAll"))) {
+              return;
+            }
+            applyImportedLists(importResult, replaceExisting);
+            const successKey = replaceExisting
+              ? "alertImportAllSuccess"
+              : "alertImportSuccess";
+            alert(
+              getText(successKey, {
+                count: importResult.importedLists.length,
+                fileName: file.name,
+              })
+            );
+          } catch (err) {
+            alert(getText("alertImportInvalidFile"));
+          } finally {
+            importListInput.value = "";
+            importAllInput.value = "";
+          }
+        };
+        reader.onerror = () => {
+          alert(getText("alertImportReadError"));
+          importListInput.value = "";
+          importAllInput.value = "";
+        };
+        reader.readAsText(file);
       }
 
       // --- Inline Editing Function --- (Update alerts)
@@ -823,7 +1317,11 @@
           alert(getText("alertEnterTask")); // Use getText
           return;
         }
-        const newTask = { id: Date.now(), text: taskText, completed: false };
+        const newTask = {
+          id: generateTaskId(),
+          text: taskText,
+          completed: false,
+        };
         lists[currentListId].tasks.push(newTask);
         taskInput.value = "";
         saveLists();
@@ -999,6 +1497,37 @@
         }
       });
       resetTasksBtn.addEventListener("click", resetAllTasks);
+      exportListBtn.addEventListener("click", openExportModal);
+      exportAllBtn.addEventListener("click", exportAllLists);
+      cancelExportBtn.addEventListener("click", closeExportModal);
+      confirmExportBtn.addEventListener("click", exportSelectedLists);
+      exportModalBackdrop.addEventListener("click", (e) => {
+        if (e.target === exportModalBackdrop) {
+          closeExportModal();
+        }
+      });
+      document.addEventListener("keydown", (e) => {
+        if (
+          e.key === "Escape" &&
+          exportModalBackdrop.classList.contains("open")
+        ) {
+          closeExportModal();
+        }
+      });
+      importListBtn.addEventListener("click", () => importListInput.click());
+      importAllBtn.addEventListener("click", () => importAllInput.click());
+      importListInput.addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          importListsFromFile(file, false);
+        }
+      });
+      importAllInput.addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          importListsFromFile(file, true);
+        }
+      });
       addTaskBtn.addEventListener("click", addTask);
       taskInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
