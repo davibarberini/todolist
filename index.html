@@ -29,14 +29,74 @@
         --dragging-opacity: 0.5;
         --drag-over-border: 2px dashed var(--primary-color);
         --ad-placeholder-bg: #e9ecef;
+        --list-hover-bg: #d8dde2;
+        --active-list-text: #004085;
+        --button-hover-color: #0056b3;
+        --secondary-hover-color: #5a6268;
+        --danger-hover-color: #a71d2a;
+        --success-hover-color: #1e7e34;
+        --focus-ring-color: rgba(0, 123, 255, 0.25);
+        --dragging-bg: #f0f0f0;
+        --surface-radius: 10px;
+        --control-radius: 6px;
+        --reset-btn-bg: var(--warning-color);
+        --reset-btn-border: #dda900;
+        --reset-btn-hover-bg: #e9b300;
+        --reset-btn-hover-border: #c39200;
+        --reset-btn-disabled-bg: #ffca2c;
+        --reset-btn-disabled-border: #ecb300;
         --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           "Helvetica Neue", Arial, sans-serif;
+      }
+      :root[data-theme="pastel-pink"] {
+        --bg-color: #fff5f8;
+        --card-bg-color: #fffafd;
+        --list-bg-color: #fce8f0;
+        --primary-color: #ca5d86;
+        --secondary-color: #9a7280;
+        --text-color: #4f3540;
+        --border-color: #edcbd8;
+        --shadow-color: rgba(143, 72, 101, 0.16);
+        --danger-color: #bf4d69;
+        --success-color: #649b7f;
+        --warning-color: #edbd62;
+        --completed-color: #947582;
+        --active-list-bg: #f7cddd;
+        --ad-placeholder-bg: #f9e2eb;
+        --list-hover-bg: #f5d9e4;
+        --active-list-text: #863b5a;
+        --button-hover-color: #ad456d;
+        --secondary-hover-color: #7e5968;
+        --danger-hover-color: #96364e;
+        --success-hover-color: #46765f;
+        --focus-ring-color: rgba(202, 93, 134, 0.26);
+        --dragging-bg: #fdebf1;
+        --reset-btn-bg: #f0d0dc;
+        --reset-btn-border: #c988a5;
+        --reset-btn-hover-bg: #e6b8ca;
+        --reset-btn-hover-border: #ad456d;
+        --reset-btn-disabled-bg: #f5dce6;
+        --reset-btn-disabled-border: #dbb0c0;
+      }
+      :root[data-corners="square"] {
+        --surface-radius: 0px;
+        --control-radius: 0px;
       }
       /* ... (Keep all other CSS rules from the previous version) ... */
       * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+      }
+      .sr-only {
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+        clip: rect(0, 0, 0, 0);
       }
       body {
         font-family: var(--font-family);
@@ -54,7 +114,7 @@
         width: 100%;
         max-width: 850px;
         background-color: var(--card-bg-color);
-        border-radius: 8px;
+        border-radius: var(--surface-radius);
         box-shadow: 0 4px 15px var(--shadow-color);
         margin-top: 30px;
         overflow: hidden;
@@ -89,19 +149,19 @@
         align-items: center;
         padding: 8px 10px;
         margin-bottom: 5px;
-        border-radius: 4px;
+        border-radius: var(--control-radius);
         cursor: pointer;
         transition: background-color 0.2s ease;
         word-break: break-word;
         position: relative;
       }
       #list-container li:hover {
-        background-color: #d8dde2;
+        background-color: var(--list-hover-bg);
       }
       #list-container li.active {
         background-color: var(--active-list-bg);
         font-weight: 600;
-        color: #004085;
+        color: var(--active-list-text);
       }
       .list-name {
         flex-grow: 1;
@@ -125,7 +185,7 @@
         opacity: 1;
       }
       .list-delete-btn:hover {
-        color: #a71d2a;
+        color: var(--danger-hover-color);
       }
       .add-list-area {
         display: flex;
@@ -139,7 +199,7 @@
         padding: 6px 8px;
         font-size: 0.9rem;
         border: 1px solid var(--border-color);
-        border-radius: 3px;
+        border-radius: var(--control-radius);
         min-width: 0;
       }
       #add-list-btn {
@@ -148,12 +208,12 @@
         background-color: var(--secondary-color);
         color: white;
         border: none;
-        border-radius: 3px;
+        border-radius: var(--control-radius);
         cursor: pointer;
         transition: background-color 0.2s;
       }
       #add-list-btn:hover {
-        background-color: #5a6268;
+        background-color: var(--secondary-hover-color);
       }
       .data-actions {
         display: grid;
@@ -164,16 +224,16 @@
       .data-action-btn {
         padding: 7px 8px;
         font-size: 0.82rem;
-        background-color: #fff;
+        background-color: var(--card-bg-color);
         color: var(--primary-color);
         border: 1px solid var(--primary-color);
-        border-radius: 3px;
+        border-radius: var(--control-radius);
         cursor: pointer;
         transition: background-color 0.2s, color 0.2s, opacity 0.2s;
       }
       .data-action-btn:hover:not(:disabled) {
         background-color: var(--primary-color);
-        color: #fff;
+        color: var(--card-bg-color);
       }
       .data-action-btn:disabled {
         cursor: not-allowed;
@@ -197,8 +257,8 @@
         display: flex;
       }
       .modal {
-        background-color: #fff;
-        border-radius: 6px;
+        background-color: var(--card-bg-color);
+        border-radius: var(--surface-radius);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         max-width: 420px;
         padding: 18px;
@@ -211,7 +271,7 @@
       }
       .modal-list-options {
         border: 1px solid var(--border-color);
-        border-radius: 4px;
+        border-radius: var(--control-radius);
         max-height: 260px;
         overflow-y: auto;
       }
@@ -239,7 +299,7 @@
       }
       .modal-actions button {
         border: 1px solid var(--border-color);
-        border-radius: 4px;
+        border-radius: var(--control-radius);
         cursor: pointer;
         padding: 7px 12px;
       }
@@ -259,7 +319,7 @@
         font: inherit;
         color: inherit;
         border: 1px solid var(--primary-color);
-        border-radius: 4px;
+        border-radius: var(--control-radius);
         box-sizing: border-box;
         background-color: white;
         z-index: 10;
@@ -306,20 +366,20 @@
       #reset-tasks-btn {
         padding: 6px 12px;
         font-size: 0.85rem;
-        background-color: var(--warning-color);
-        color: #333;
-        border: 1px solid #dda900;
-        border-radius: 4px;
+        background-color: var(--reset-btn-bg);
+        color: var(--text-color);
+        border: 1px solid var(--reset-btn-border);
+        border-radius: var(--control-radius);
         cursor: pointer;
         transition: background-color 0.2s, border-color 0.2s;
       }
       #reset-tasks-btn:hover {
-        background-color: #e9b300;
-        border-color: #c39200;
+        background-color: var(--reset-btn-hover-bg);
+        border-color: var(--reset-btn-hover-border);
       }
       #reset-tasks-btn:disabled {
-        background-color: #ffca2c;
-        border-color: #ecb300;
+        background-color: var(--reset-btn-disabled-bg);
+        border-color: var(--reset-btn-disabled-border);
         opacity: 0.6;
         cursor: not-allowed;
       }
@@ -333,26 +393,26 @@
         padding: 10px 12px;
         font-size: 1rem;
         border: 1px solid var(--border-color);
-        border-radius: 4px;
+        border-radius: var(--control-radius);
       }
       #task-input:focus {
         outline: none;
         border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        box-shadow: 0 0 0 2px var(--focus-ring-color);
       }
       #add-task-btn {
         padding: 10px 15px;
         background-color: var(--primary-color);
         color: white;
         border: none;
-        border-radius: 4px;
+        border-radius: var(--control-radius);
         font-size: 1rem;
         cursor: pointer;
         transition: background-color 0.2s ease;
         white-space: nowrap;
       }
       #add-task-btn:hover {
-        background-color: #0056b3;
+        background-color: var(--button-hover-color);
       }
       .input-area input:disabled,
       .input-area button:disabled {
@@ -410,13 +470,13 @@
         color: var(--success-color);
       }
       .toggle-btn:hover {
-        color: #1e7e34;
+        color: var(--success-hover-color);
       }
       .delete-btn {
         color: var(--danger-color);
       }
       .delete-btn:hover {
-        color: #a71d2a;
+        color: var(--danger-hover-color);
       }
       .placeholder-message {
         text-align: center;
@@ -427,13 +487,150 @@
       }
       #task-list li.dragging {
         opacity: var(--dragging-opacity);
-        background-color: #f0f0f0;
+        background-color: var(--dragging-bg);
         cursor: grabbing;
       }
       #task-list li.drag-over {
         border-top: var(--drag-over-border);
       }
+      .theme-control {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 900;
+      }
+      .theme-trigger {
+        align-items: center;
+        background: var(--card-bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        box-shadow: 0 4px 14px var(--shadow-color);
+        color: var(--primary-color);
+        cursor: pointer;
+        display: flex;
+        height: 46px;
+        justify-content: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        width: 46px;
+      }
+      .theme-trigger:hover,
+      .theme-trigger[aria-expanded="true"] {
+        box-shadow: 0 6px 18px var(--shadow-color);
+        transform: translateY(-1px);
+      }
+      .theme-trigger:focus-visible,
+      .theme-option:focus-visible,
+      .corner-toggle input:focus-visible + .toggle-track {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 3px;
+      }
+      .theme-menu {
+        background: var(--card-bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: var(--surface-radius);
+        box-shadow: 0 10px 28px var(--shadow-color);
+        margin-top: 10px;
+        min-width: 220px;
+        padding: 14px;
+        position: absolute;
+        right: 0;
+      }
+      .theme-menu[hidden] {
+        display: none;
+      }
+      .theme-menu-title {
+        color: var(--text-color);
+        font-size: 0.86rem;
+        font-weight: 700;
+        margin-bottom: 9px;
+      }
+      .theme-options {
+        display: grid;
+        gap: 7px;
+      }
+      .theme-option {
+        align-items: center;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: var(--control-radius);
+        color: var(--text-color);
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        gap: 9px;
+        padding: 8px;
+        text-align: left;
+        width: 100%;
+      }
+      .theme-option[aria-pressed="true"] {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 1px var(--primary-color);
+      }
+      .theme-swatch {
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 50%;
+        display: inline-flex;
+        flex-shrink: 0;
+        height: 24px;
+        overflow: hidden;
+        width: 24px;
+      }
+      .theme-swatch span {
+        flex: 1;
+      }
+      .theme-swatch-default span:nth-child(1) { background: #f4f7f9; }
+      .theme-swatch-default span:nth-child(2) { background: #007bff; }
+      .theme-swatch-default span:nth-child(3) { background: #ffffff; }
+      .theme-swatch-pink span:nth-child(1) { background: #fff5f8; }
+      .theme-swatch-pink span:nth-child(2) { background: #ca5d86; }
+      .theme-swatch-pink span:nth-child(3) { background: #fce8f0; }
+      .corner-setting {
+        border-top: 1px solid var(--border-color);
+        margin-top: 13px;
+        padding-top: 13px;
+      }
+      .corner-toggle {
+        align-items: center;
+        color: var(--text-color);
+        cursor: pointer;
+        display: flex;
+        font-size: 0.9rem;
+        gap: 9px;
+        justify-content: space-between;
+      }
+      .corner-toggle input {
+        height: 1px;
+        opacity: 0;
+        position: absolute;
+        width: 1px;
+      }
+      .toggle-track {
+        background: var(--secondary-color);
+        border-radius: 999px;
+        height: 22px;
+        padding: 3px;
+        transition: background-color 0.2s ease;
+        width: 40px;
+      }
+      .toggle-thumb {
+        background: #fff;
+        border-radius: 50%;
+        display: block;
+        height: 16px;
+        transition: transform 0.2s ease;
+        width: 16px;
+      }
+      .corner-toggle input:checked + .toggle-track {
+        background: var(--primary-color);
+      }
+      .corner-toggle input:checked + .toggle-track .toggle-thumb {
+        transform: translateX(18px);
+      }
       @media (max-width: 750px) {
+        .theme-control {
+          right: 14px;
+          top: 14px;
+        }
         .container {
           flex-direction: column;
           max-width: 95%;
@@ -464,6 +661,44 @@
     </style>
   </head>
   <body>
+    <div class="theme-control">
+      <button
+        id="theme-trigger"
+        class="theme-trigger"
+        type="button"
+        aria-expanded="false"
+        aria-controls="theme-menu"
+        title="Theme settings"
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 3a9 9 0 0 0 0 18c1.2 0 2.1-.9 2.1-2.1 0-.55-.2-1.05-.54-1.42a2.1 2.1 0 0 1 1.53-3.55h2.36A3.55 3.55 0 0 0 21 10.37 9 9 0 0 0 12 3Z"></path>
+          <circle cx="7.5" cy="10" r=".7" fill="currentColor" stroke="none"></circle>
+          <circle cx="9" cy="6.8" r=".7" fill="currentColor" stroke="none"></circle>
+        </svg>
+        <span class="sr-only" id="theme-trigger-label">Theme settings</span>
+      </button>
+      <section id="theme-menu" class="theme-menu" hidden aria-labelledby="theme-menu-title">
+        <p class="theme-menu-title" id="theme-menu-title">Color theme</p>
+        <div class="theme-options" role="group" aria-label="Color theme">
+          <button type="button" class="theme-option" data-theme-option="default" aria-pressed="true">
+            <span class="theme-swatch theme-swatch-default" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span id="default-theme-label">Classic blue</span>
+          </button>
+          <button type="button" class="theme-option" data-theme-option="pastel-pink" aria-pressed="false">
+            <span class="theme-swatch theme-swatch-pink" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span id="pastel-pink-theme-label">Pastel pink</span>
+          </button>
+        </div>
+        <div class="corner-setting">
+          <label class="corner-toggle" for="rounded-corners-toggle">
+            <span id="rounded-corners-label">Rounded corners</span>
+            <input id="rounded-corners-toggle" type="checkbox" checked />
+            <span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
+          </label>
+        </div>
+      </section>
+    </div>
     <div class="container">
       <!-- List Management Sidebar -->
       <aside class="list-management">
@@ -632,6 +867,11 @@
           confirmImportAll:
             "Import all will replace every current list. Continue?",
           alertImportAllSuccess: 'Imported all lists from "{fileName}".',
+          themeSettings: "Theme settings",
+          colorTheme: "Color theme",
+          classicBlue: "Classic blue",
+          pastelPink: "Pastel pink",
+          roundedCorners: "Rounded corners",
         },
         pt: {
           // Brazilian Portuguese
@@ -689,6 +929,11 @@
             "Importar tudo vai substituir todas as listas atuais. Continuar?",
           alertImportAllSuccess:
             'Todas as listas de "{fileName}" foram importadas.',
+          themeSettings: "Configurações de tema",
+          colorTheme: "Tema de cores",
+          classicBlue: "Azul clássico",
+          pastelPink: "Rosa pastel",
+          roundedCorners: "Cantos arredondados",
         },
       };
       let currentLang = "en"; // Default language
@@ -730,12 +975,100 @@
       const listSidebarTitleElement =
         document.getElementById("list-sidebar-title");
       const adPlaceholderElement = document.getElementById("ad-placeholder");
+      const themeTrigger = document.getElementById("theme-trigger");
+      const themeMenu = document.getElementById("theme-menu");
+      const themeMenuTitle = document.getElementById("theme-menu-title");
+      const themeOptions = document.querySelectorAll("[data-theme-option]");
+      const defaultThemeLabel = document.getElementById("default-theme-label");
+      const pastelPinkThemeLabel = document.getElementById(
+        "pastel-pink-theme-label"
+      );
+      const roundedCornersLabel = document.getElementById(
+        "rounded-corners-label"
+      );
+      const roundedCornersToggle = document.getElementById(
+        "rounded-corners-toggle"
+      );
 
       // --- Constants & State --- (Keep all from previous version)
       const LIST_STORAGE_KEY = "multiTodoListListsEnhancedAdsI18n"; // Updated key
+      const APPEARANCE_STORAGE_KEY = "multiTodoListAppearance";
       let lists = {};
       let currentListId = null;
       let draggedTaskId = null;
+      let appearance = { theme: "default", roundedCorners: true };
+
+      // --- Theme Preferences ---
+      function saveAppearance() {
+        localStorage.setItem(APPEARANCE_STORAGE_KEY, JSON.stringify(appearance));
+      }
+
+      function applyAppearance() {
+        const root = document.documentElement;
+        if (appearance.theme === "pastel-pink") {
+          root.setAttribute("data-theme", "pastel-pink");
+        } else {
+          root.removeAttribute("data-theme");
+        }
+        root.setAttribute(
+          "data-corners",
+          appearance.roundedCorners ? "rounded" : "square"
+        );
+        themeOptions.forEach((option) => {
+          option.setAttribute(
+            "aria-pressed",
+            String(option.dataset.themeOption === appearance.theme)
+          );
+        });
+        roundedCornersToggle.checked = appearance.roundedCorners;
+      }
+
+      function loadAppearance() {
+        try {
+          const storedAppearance = JSON.parse(
+            localStorage.getItem(APPEARANCE_STORAGE_KEY)
+          );
+          if (
+            storedAppearance &&
+            ["default", "pastel-pink"].includes(storedAppearance.theme)
+          ) {
+            appearance.theme = storedAppearance.theme;
+          }
+          if (typeof storedAppearance?.roundedCorners === "boolean") {
+            appearance.roundedCorners = storedAppearance.roundedCorners;
+          }
+        } catch (error) {
+          // Keep the default appearance if an older or malformed value is stored.
+        }
+        applyAppearance();
+      }
+
+      function setTheme(theme) {
+        appearance.theme = theme;
+        applyAppearance();
+        saveAppearance();
+      }
+
+      function setRoundedCorners(roundedCorners) {
+        appearance.roundedCorners = roundedCorners;
+        applyAppearance();
+        saveAppearance();
+      }
+
+      function updateThemeControlText() {
+        const themeSettings = getText("themeSettings");
+        themeTrigger.title = themeSettings;
+        themeTrigger.setAttribute("aria-label", themeSettings);
+        document.getElementById("theme-trigger-label").textContent = themeSettings;
+        themeMenuTitle.textContent = getText("colorTheme");
+        themeMenu.querySelector(".theme-options").setAttribute(
+          "aria-label",
+          getText("colorTheme")
+        );
+        defaultThemeLabel.textContent = getText("classicBlue");
+        pastelPinkThemeLabel.textContent = getText("pastelPink");
+        roundedCornersLabel.textContent = getText("roundedCorners");
+      }
 
       // --- Language Detection and Setting ---
       function setLanguage() {
@@ -764,6 +1097,7 @@
         confirmExportBtn.textContent = getText("exportModalConfirmBtn");
         addListBtn.title = getText("addListBtnTooltip");
         newListInput.placeholder = getText("newListInputPlaceholder");
+        updateThemeControlText();
 
         // Re-render dynamic elements that depend on language
         renderLists(); // Will use getText for placeholders
@@ -1497,6 +1831,23 @@
         }
       });
       resetTasksBtn.addEventListener("click", resetAllTasks);
+      themeTrigger.addEventListener("click", () => {
+        const isOpen = !themeMenu.hidden;
+        themeMenu.hidden = isOpen;
+        themeTrigger.setAttribute("aria-expanded", String(!isOpen));
+      });
+      themeOptions.forEach((option) => {
+        option.addEventListener("click", () => setTheme(option.dataset.themeOption));
+      });
+      roundedCornersToggle.addEventListener("change", () => {
+        setRoundedCorners(roundedCornersToggle.checked);
+      });
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".theme-control") && !themeMenu.hidden) {
+          themeMenu.hidden = true;
+          themeTrigger.setAttribute("aria-expanded", "false");
+        }
+      });
       exportListBtn.addEventListener("click", openExportModal);
       exportAllBtn.addEventListener("click", exportAllLists);
       cancelExportBtn.addEventListener("click", closeExportModal);
@@ -1507,6 +1858,12 @@
         }
       });
       document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !themeMenu.hidden) {
+          themeMenu.hidden = true;
+          themeTrigger.setAttribute("aria-expanded", "false");
+          themeTrigger.focus();
+          return;
+        }
         if (
           e.key === "Escape" &&
           exportModalBackdrop.classList.contains("open")
@@ -1572,6 +1929,7 @@
 
       // --- Initial Load ---
       document.addEventListener("DOMContentLoaded", () => {
+        loadAppearance();
         setLanguage(); // Detect language and set initial text FIRST
         loadLists(); // Load data from localStorage
         // Rendering happens within setLanguage now, or needs to be called again if loadLists modifies currentListId significantly
